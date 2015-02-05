@@ -1,0 +1,25 @@
+{
+  "name": "package",
+  "version": "0.0.0",
+  "description": "Tao.z HTML5",
+  "author": {
+    "name": "Tao.z",
+    "email": "lizouzt@gmail.com",
+    "url": "https://github.com/lizouzt"
+  },
+  "license": "MIT",
+  "devDependencies":{
+    "grunt": "~0.4.1",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-less": "~0.5.0",
+    "grunt-contrib-cssmin": "~0.6.1",
+    "grunt-contrib-handlebars":"~0.6.0",
+    "grunt-cmd-transport":"~0.4.1",
+    "grunt-cmd-concat":"~0.2.7",
+    "grunt-contrib-jst":"~0.5.1",
+    "grunt-contrib-clean":"~0.5.0",
+    "grunt-contrib-jshint":"~0.11.0",
+    "grunt-contrib-watch": "~0.5.1"
+  }
+}
