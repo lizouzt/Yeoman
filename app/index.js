@@ -3,6 +3,7 @@ var yeoman = require('yeoman-generator');
 var chalk = require('chalk');
 var yosay = require('yosay');
 var path = require('path');
+var bower = require('bower');
 
 module.exports = yeoman.generators.Base.extend({
   initializing: function () {
@@ -15,19 +16,38 @@ module.exports = yeoman.generators.Base.extend({
       'Welcome to ' + chalk.red('Wooha') + ' generator!'
     ));
 
-    var prompt = [{
-      name: 'component',
-      message: 'name of component:',
-      default: this.appname
+    var depPromts = [{
+      type: 'checkbox',
+      name: 'dependencyArray',
+      message: 'project dependencies',
+      choices: [{
+        name: '1) lesshat',
+        value: 'lesshat',
+        checked: false
+      },{
+        name: '2) requireJS',
+        value: 'requirejs',
+        checked: false
+      },{
+        name: '3) underscore',
+        value: 'underscore',
+        checked: false
+      },{
+        name: '4) backbone',
+        value: 'backbone',
+        checked: false
+      },{
+        name: '5) bootStrap',
+        value: 'bootStrap',
+        checked: false
+      },{
+        name: '6) jQuery',
+        value: 'jQuery',
+        checked: false
+      }]
     }];
-
-    this.prompt(prompt, function(props, err){
-      if (err) {
-        return this.emit('error', err);
-      }
-      this.componentName = props.component;
-      this.destinationRoot(this.componentName);
-
+    this.prompt(depPromts, function(props){
+      this.dependencies = props.dependencyArray;
       done();
     }.bind(this));
   },
@@ -35,22 +55,31 @@ module.exports = yeoman.generators.Base.extend({
   askAuthor: function(){
     var done = this.async();
     var prompts = [{
-        name: 'author',
-        message: 'author of component:',
-        default: 'Wooha•Yeo'
+      name: 'component',
+      message: 'name of component:',
+      default: this.appname
     },{
-        name: 'email',
-        message: 'email of author:',
-        default: 'Wooha•Yeo@gmail.com'
+      name: 'author',
+      message: 'author of component:',
+      default: 'Wooha•Yeo'
+    },{
+      name: 'email',
+      message: 'email of author:',
+      default: 'Wooha•Yeo@gmail.com'
+    },{
+      name: 'gitPage',
+      message: 'Git page of author:',
+      default: 'https://github.com/lizouzt'
     }];
 
-    this.prompt(prompts, function (props, err) {
-        if (err) {
-            return this.emit('error', err);
-        }
+    this.prompt(prompts, function (props) {
+        this.componentName = props.component;
+        this.destinationRoot(this.componentName);
 
         this.author = props.author;
         this.email = props.email;
+        this.url = props.gitPage;
+
         done();
     }.bind(this));
   },
@@ -66,14 +95,21 @@ module.exports = yeoman.generators.Base.extend({
       this.mkdir('src/p/index/tpl');
       this.mkdir('html');
 
-      this.fs.copy(
-        this.templatePath('_package.json'),
-        this.destinationPath('/package.json')
-      );
-      this.fs.copy(
-        this.templatePath('_bower.json'),
-        this.destinationPath(path.join('', '/bower.json'))
-      );
+      var packageFile = this.readFileAsString(this.templatePath('/_package.json'));
+      packageFile = JSON.parse(packageFile);
+      packageFile.name = this.componentName;
+      packageFile.author = {
+        name: this.author,
+        email: this.email,
+        url: this.gitPage
+      };
+      this.write(this.destinationPath('/package.json'), JSON.stringify(packageFile, null, 4));
+
+      var bowerFile = this.readFileAsString(this.templatePath('/_bower.json'));
+      bowerFile = JSON.parse(bowerFile);
+      bowerFile.name = this.componentName;
+      this.write(this.destinationPath('/bower.json'), JSON.stringify(bowerFile, null, 4));
+
       this.fs.copy(
         this.templatePath('_Gruntfile.js'),
         this.destinationPath('/Gruntfile.js')
@@ -116,5 +152,11 @@ module.exports = yeoman.generators.Base.extend({
     this.installDependencies({
       skipInstall: this.options['skip-install']
     });
+
+    bower.commands.install(this.dependencies, {save: true}).on('end', function(installed){
+      this.log('*********************bower*********************');
+      this.log(JSON.stringify(installed));
+      this.log('***********************************************');
+    }.bind(this));
   }
 });
