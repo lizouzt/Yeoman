@@ -5,40 +5,12 @@ module.exports = function(grunt) {
     tempBase: 'temp',
     srcBase: 'src',
     buildBase: 'build',
-    jst:{
-      complie:{
-        options:{
-          amd:true,
-          prettify:true,
-          namespace:false,
-          templateSettings : {},
-          processContent: function(src) {
-            return src.replace(/\r\n/g, '\n');
-          }
-        },
-        files:[{
-          expand: true,
-          cwd: '<%= srcBase %>',
-          src: ['**/*-udt.html'],
-          dest: '<%= srcBase %>',
-          ext: '.js'
-        }]
-      }
-    },
-    copy: {
-      main: {
-        expand: true,
-        cwd: '<%= srcBase %>',
-        src: ['common/**/*.js','**/*.jpg','**/*.png', '**/*.eot', '**/*.svg', '**/*.ttf', '**/*.woff'],
-        dest: '<%= buildBase %>'
-      }
-    },
     less: {
       compile: {
         files: [{
           expand: true,
           cwd: '<%= srcBase %>',
-          src: ['**/*.less','!common/*.less','!common/**/*.less','!**/mod/*.less','!mod/**/*.less','!mod/*.less','!util/**/*.less'],
+          src: ['p/**/*.less','!c/*.less','!c/**/*.less','!**/mod/*.less','!mod/**/*.less','!util/**/*.less'],
           dest: '<%= buildBase %>',
           ext: '.css'
         }]
@@ -53,30 +25,57 @@ module.exports = function(grunt) {
         ext: '-min.css'
       }
     },
+    jst:{
+      complie:{
+        options:{
+          amd:true,
+          prettify:true,
+          namespace:false,
+          templateSettings : {},
+          processContent: function(src) {
+            return src.replace(/\r\n/g, '\n');
+          }
+        },
+        files:[{
+          expand: true,
+          cwd: '<%= srcBase %>',
+          src: ['**/*.jst.html'],
+          dest: '<%= tempBase %>',
+          ext: '.jst.js'
+        }]
+      }
+    },
+    copy: {
+      main: {
+        expand: true,
+        cwd: '<%= srcBase %>',
+        src: ['c/common/**/*.js'],
+        dest: '<%= buildBase %>'
+      }
+    },
     transport: {
       options: {
         debug: false,
-        paths:['src'],
-        alias:{
-          'underscore': 'common/underscore'
-        }
+        paths:['src']
       },
       trans: {
         expand: true,
         cwd: '<%= srcBase %>',
-        src: ['**/*.js', '!**/*-min.js','!common/**/*.js'],
+        src: ['**/*.js', '!**/*-min.js', '!c/common/**/*.js'],
         dest: '<%= tempBase %>'
       }
     },
     concat: {
       page: {
         options: {
-          include: 'relative'
+          include: 'all',
+          paths: ['temp'],
+          separator: ';',
         },
         files: [{
           expand: true,
           cwd: '<%= tempBase %>',
-          src: ['**/*.js','!**/mod/*.js','!util/**/*.js', '!**/*-min.js'],
+          src: ['**/*.js','!**/*.jst.js','!c/**/*.js'],
           dest: '<%= buildBase %>',
           ext: '.js'
         }]
@@ -88,8 +87,8 @@ module.exports = function(grunt) {
       },
       build: {
         expand: true,
-        cwd: '<%= srcBase %>',
-        src: ['**/*.js', '!**/*-sc.js', '!**/*.combo.debug.js','!**/*-min.js'],
+        cwd: '<%= buildBase %>',
+        src: ['**/*.js','!**/*-min.js'],
         dest: '<%= buildBase %>',
         ext: '-min.js'
       }
@@ -112,17 +111,30 @@ module.exports = function(grunt) {
       ]
     },
 
+    browserSync: {
+      files: ['./build/**/*.css','./src/**/*.js'],
+      options: {
+        watchTask: true,
+        server: {
+          baseDir: "./",
+          index: "./html/index.html"
+        },
+      }
+    },
+
     watch:{
       options: {
-
+        ignoreInitial: true,
+        ignored: ['*.txt','*.json']
       },
       assets:{
-        files: ['**/index/mod/*-udt.html','**/index/index.js','**/index/index.less','**/yanghuo/mod/*-udt.html','**/yanghuo/yanghuo.js','**/yanghuo/yanghuo.less','**/src/**/*.less','**/src/**/*.js'],
-        tasks: ['jshint', 'copy','jst', 'transport', 'concat', 'less', 'cssmin','clean','clean']
+        files: ['./src/**/*.less'],
+        tasks: ['less']
       }
     },
   });
 
+  grunt.loadNpmTasks('grunt-browser-sync');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
@@ -134,9 +146,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
-
   grunt.registerTask('default', [
-    'jshint',
+    // 'jshint',
     'copy', 
     'jst', 
     'transport', 
@@ -147,10 +158,12 @@ module.exports = function(grunt) {
     'clean'
   ]);
 
+  grunt.registerTask('sync', ['browserSync','watch']);
+
   grunt.registerTask('js', [
-    'jshint',
+    // 'jshint',
     'jst',
-    'transport', 
+    'transport',
     'concat',
     'clean'
   ]);

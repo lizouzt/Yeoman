@@ -2,3 +2,12 @@ node_modules
 dist
 .tmp
 bower_components
+.editorconfig
+.jshintrc
+.travis.yml
+*.swp
+.sass-cache/
+mods/.sass-cache/
+.DS_Store
+build
+package.json

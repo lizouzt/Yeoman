@@ -89,10 +89,10 @@ module.exports = yeoman.generators.Base.extend({
       this.mkdir('src');
       this.mkdir('src/c');
       this.mkdir('src/c/widget');
+      this.mkdir('src/c/utils');
       this.mkdir('src/p');
       this.mkdir('src/p/index');
       this.mkdir('src/p/index/mod');
-      this.mkdir('src/p/index/tpl');
       this.mkdir('html');
 
       var packageFile = this.readFileAsString(this.templatePath('/_package.json'));
