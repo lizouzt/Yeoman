@@ -90,6 +90,7 @@ module.exports = yeoman.generators.Base.extend({
       this.mkdir('src/c');
       this.mkdir('src/c/widget');
       this.mkdir('src/c/utils');
+      this.mkdir('src/c/common');
       this.mkdir('src/p');
       this.mkdir('src/p/index');
       this.mkdir('src/p/index/mod');
