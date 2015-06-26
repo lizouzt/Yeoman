@@ -159,10 +159,6 @@ module.exports = yeoman.generators.Base.extend({
       skipInstall: this.options['skip-install']
     });
 
-    bower.commands.install(this.dependencies, {save: true}).on('end', function(installed){
-      this.log('*********************bower*********************');
-      this.log(JSON.stringify(installed));
-      this.log('***********************************************');
-    }.bind(this));
+    bower.commands.install(this.dependencies, {save: true}).on('end', function(installed){}.bind(this));
   }
 });

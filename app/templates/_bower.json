@@ -10,6 +10,6 @@
     "tests"
   ],
   "dependencies": {
-    "Libo0_0": "git://github.com/lizouzt/Libo0_0.git",
+    "Libo0_0": "git://github.com/lizouzt/Libo0_0.git"
   }
 }
