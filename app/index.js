@@ -90,7 +90,6 @@ module.exports = yeoman.generators.Base.extend({
       this.mkdir('src/c');
       this.mkdir('src/c/widget');
       this.mkdir('src/c/utils');
-      this.mkdir('src/c/common');
       this.mkdir('src/p');
       this.mkdir('src/p/index');
       this.mkdir('src/p/index/mod');
@@ -144,7 +143,7 @@ module.exports = yeoman.generators.Base.extend({
       );
       this.fs.copy(
         this.templatePath('inc/index.less'),
-        this.destinationPath('/src/p/index.less')
+        this.destinationPath('/src/p/index/index.less')
       );
       this.fs.copyTpl(
         this.templatePath('inc/index.html'),

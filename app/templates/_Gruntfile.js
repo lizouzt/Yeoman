@@ -1,4 +1,3 @@
-'use strict';
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -10,9 +9,9 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: '<%= srcBase %>',
-          src: ['p/**/*.less','!c/*.less','!c/**/*.less','!**/mod/*.less','!mod/**/*.less','!util/**/*.less'],
+          src: ['p/**/*.less','!p/**/mod/*.less'],
           dest: '<%= buildBase %>',
-          ext: '.css'
+          ext: '.org.css'
         }]
       }
     },
@@ -20,9 +19,17 @@ module.exports = function(grunt) {
       combine: {
         expand: true,
         cwd: '<%= buildBase %>',
-        src: ['**/*.css', '!**/*-min.css'],
+        src: ['**/*.org.css', '!**/*-min.css'],
         dest: '<%= buildBase %>',
-        ext: '-min.css'
+        ext: '.css'
+      }
+    },
+    copy: {
+      deps: {
+        expand: true,
+        cwd: '<%= srcBase %>',
+        src: ['c/common/**/*.*'],
+        dest: '<%= buildBase %>',
       }
     },
     jst:{
@@ -40,17 +47,9 @@ module.exports = function(grunt) {
           expand: true,
           cwd: '<%= srcBase %>',
           src: ['**/*.jst.html'],
-          dest: '<%= tempBase %>',
+          dest: '<%= srcBase %>',
           ext: '.jst.js'
         }]
-      }
-    },
-    copy: {
-      main: {
-        expand: true,
-        cwd: '<%= srcBase %>',
-        src: ['c/common/**/*.js'],
-        dest: '<%= buildBase %>'
       }
     },
     transport: {
@@ -61,11 +60,25 @@ module.exports = function(grunt) {
       trans: {
         expand: true,
         cwd: '<%= srcBase %>',
-        src: ['**/*.js', '!**/*-min.js', '!c/common/**/*.js'],
+        src: ['**/*.js', '!**/*-min.js', '!c/deps/**/*.js'],
         dest: '<%= tempBase %>'
       }
     },
     concat: {
+      mod: {
+        options: {
+          include: 'all',
+          paths: ['temp'],
+          separator: ';',
+        },
+        files: [{
+          expand: true,
+          cwd: '<%= tempBase %>',
+          src: ['c/**/*.js','!c/deps/*.js'],
+          dest: '<%= tempBase %>',
+          ext: '.js'
+        }]
+      },
       page: {
         options: {
           include: 'all',
@@ -75,22 +88,31 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: '<%= tempBase %>',
-          src: ['**/*.js','!**/*.jst.js','!c/**/*.js'],
+          src: ['p/**/*.js','p/**/*.jst.js'],
           dest: '<%= buildBase %>',
-          ext: '.js'
+          ext: '.org.js'
         }]
+      }
+    },
+    copy: {
+      mod: {
+        expand: true,
+        cwd: '<%= tempBase %>',
+        src: ['c/**/*.js'],
+        dest: '<%= buildBase %>',
+        ext: '.org.js'
       }
     },
     uglify: {
       options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n /**********************************************\n * Handcrafted by <%= pkg.author.name %>, <%= pkg.author.url %>\n * Work enjoy with scaffold! \n * Version: v<%= pkg.version%> \n **********************************************/\n'
+        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n /**********************************************\n * Handcrafted by <%= pkg.author.name %>, <%= pkg.author.url %>\n **********************************************/\n'
       },
       build: {
         expand: true,
         cwd: '<%= buildBase %>',
-        src: ['**/*.js','!**/*-min.js'],
+        src: ['**/*.org.js','!**/*-min.js','!c/deps/**/*.js'],
         dest: '<%= buildBase %>',
-        ext: '-min.js'
+        ext: '.js'
       }
     },
     clean:{
@@ -99,7 +121,6 @@ module.exports = function(grunt) {
       }
     },
 
-    // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
         jshintrc: '.jshintrc',
@@ -107,7 +128,7 @@ module.exports = function(grunt) {
       },
       all: [
         'Gruntfile.js',
-        '<%= srcBase %>/{,*/}*.js'
+        '<%= build %>/{,*/}*.js'
       ]
     },
 
@@ -147,13 +168,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.registerTask('default', [
-    // 'jshint',
-    'copy', 
-    'jst', 
-    'transport', 
-    'concat', 
     'less', 
     'cssmin', 
+    'copy',
+    'jst', 
+    'transport', 
+    'concat',
+    'copy',
     'uglify',
     'clean'
   ]);
@@ -161,7 +182,6 @@ module.exports = function(grunt) {
   grunt.registerTask('sync', ['browserSync','watch']);
 
   grunt.registerTask('js', [
-    // 'jshint',
     'jst',
     'transport',
     'concat',
